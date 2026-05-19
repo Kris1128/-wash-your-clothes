@@ -1,0 +1,572 @@
+ <!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>洗衣机词汇大冒险 - 纯图标互动游戏</title>
+    <!-- Font Awesome 6 (界面按钮图标) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            user-select: none;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(145deg, #6ec8e0 0%, #3a9bd5 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Comic Neue', 'Comic Sans MS', 'Chalkboard SE', cursive, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .game-container {
+            width: 1000px;
+            max-width: 95vw;
+            background: #fef9e8;
+            border-radius: 80px 80px 60px 60px;
+            box-shadow: 0 20px 35px rgba(0,0,0,0.3), inset 0 1px 4px rgba(255,255,255,0.8);
+            padding: 20px 20px 35px;
+        }
+
+        .score-area {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            background: #ffefc0;
+            padding: 12px 25px;
+            border-radius: 100px;
+            margin-bottom: 20px;
+            box-shadow: inset 0 1px 4px rgba(0,0,0,0.05), 0 5px 10px rgba(0,0,0,0.1);
+        }
+        .score-box {
+            background: #5e2a84;
+            color: #ffd966;
+            padding: 8px 20px;
+            border-radius: 40px;
+            font-size: 1.8rem;
+            font-weight: bold;
+            font-family: monospace;
+        }
+        .score-box span {
+            font-size: 2.2rem;
+            color: #ffeb99;
+        }
+        .remain-box {
+            background: #ffb347;
+            color: #2d1b4e;
+            padding: 8px 18px;
+            border-radius: 40px;
+            font-size: 1.3rem;
+            font-weight: bold;
+        }
+
+        .washer {
+            position: relative;
+            background: #d9e3e8;
+            border-radius: 50px;
+            padding: 25px 20px 35px;
+            margin: 15px 0;
+            box-shadow: 0 12px 18px rgba(0,0,0,0.2), inset 0 1px 4px white;
+        }
+        .drum {
+            background: #b0c4d6;
+            border-radius: 50%;
+            width: 280px;
+            height: 280px;
+            margin: 0 auto;
+            position: relative;
+            box-shadow: inset 0 0 0 12px #7f8c8d, inset 0 0 0 18px #95a5a6, 0 10px 20px rgba(0,0,0,0.2);
+            background: radial-gradient(circle at 30% 35%, #e0f0f5, #9bb7c9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+        /* 只有衣物图标，没有任何文字 */
+        .cloth-display {
+            font-size: 5.5rem;
+            filter: drop-shadow(2px 6px 8px rgba(0,0,0,0.2));
+            transition: transform 0.2s;
+        }
+        .drum::after {
+            content: "";
+            position: absolute;
+            top: 10%;
+            left: 10%;
+            width: 80%;
+            height: 80%;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,255,240,0.3) 5%, rgba(200,225,240,0) 70%);
+            pointer-events: none;
+        }
+
+        .control-panel {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            background: #cfdee9;
+            border-radius: 40px;
+            padding: 5px 25px;
+        }
+        .question-area {
+            background: #fff9e0;
+            border-radius: 35px;
+            padding: 12px 20px;
+            text-align: center;
+            margin: 15px 0 10px;
+            box-shadow: inset 0 1px 5px rgba(0,0,0,0.05), 0 5px 12px rgba(0,0,0,0.1);
+        }
+        .question-text {
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: #dc6b1f;
+            background: #ffefb9;
+            display: inline-block;
+            padding: 6px 28px;
+            border-radius: 50px;
+            margin: 0;
+            letter-spacing: 2px;
+        }
+
+        .options-area {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 16px;
+            margin: 25px 0 15px;
+        }
+        .option-btn {
+            background: #f5e5c8;
+            border: 3px solid #ffa559;
+            padding: 12px 20px;
+            min-width: 130px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.1s;
+            box-shadow: 0 4px 0 #b97f3a;
+            color: #4a2c12;
+            text-align: center;
+        }
+        /* 确保选项按钮内没有图标 */
+        .option-btn i {
+            display: none;
+        }
+        .option-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 1px 0 #b97f3a;
+        }
+        .option-btn.disabled-btn, .option-btn:disabled {
+            opacity: 0.6;
+            transform: none;
+            cursor: not-allowed;
+        }
+
+        .action-buttons {
+            text-align: right;
+            margin-top: 15px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 20px;
+        }
+        .btn-start, .btn-again {
+            background: #4caf50;
+            border: none;
+            font-size: 1.7rem;
+            font-weight: bold;
+            padding: 12px 28px;
+            border-radius: 60px;
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 5px 0 #2e6b2f;
+            transition: 0.07s linear;
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .btn-start:active, .btn-again:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #2e6b2f;
+        }
+        .btn-again {
+            background: #ff9800;
+            box-shadow: 0 5px 0 #c66900;
+        }
+        .feedback {
+            font-size: 1.3rem;
+            background: #fceb98;
+            margin-top: 15px;
+            padding: 8px;
+            border-radius: 40px;
+            text-align: center;
+            font-weight: bold;
+            color: #c13b00;
+        }
+        /* 更快的洗衣机旋转动画 (0.12s 一圈) */
+        @keyframes spinWash {
+            0% { transform: rotate(0deg); }
+            25% { transform: rotate(10deg); }
+            75% { transform: rotate(-10deg); }
+            100% { transform: rotate(0deg); }
+        }
+        .washing {
+            animation: spinWash 0.12s infinite ease-in-out;
+        }
+        .drum-washing {
+            box-shadow: inset 0 0 0 12px #f7d44a, inset 0 0 0 18px #f1c40f, 0 0 0 3px #f39c12;
+        }
+        .reward-flash {
+            background: radial-gradient(circle, #ffd966, #ffb347);
+            transition: 0.2s;
+        }
+        .hidden {
+            display: none;
+        }
+        @media (max-width: 650px) {
+            .option-btn { min-width: 100px; font-size: 1rem; padding: 8px 12px;}
+            .cloth-display { font-size: 4rem; }
+            .question-text { font-size: 1.6rem;}
+            .btn-start, .btn-again { font-size: 1.2rem; padding: 8px 18px;}
+        }
+    </style>
+</head>
+<body>
+<div class="game-container" id="gameApp">
+    <div class="score-area">
+        <div class="score-box">🎁 Reward <span id="scoreValue">0</span> / <span id="totalCount">13</span></div>
+        <div class="remain-box">🧺 Left: <span id="remainingCount">13</span></div>
+    </div>
+
+    <div class="washer">
+        <div class="drum" id="drum">
+            <div id="clothIcon" class="cloth-display">🧺</div>
+            <!-- 没有任何文字说明 -->
+        </div>
+        <div class="control-panel">
+            <i class="fas fa-tachometer-alt" style="font-size: 1.8rem; color:#5a5a5a;"></i>
+            <i class="fas fa-sliders-h" style="font-size: 1.5rem; color:#7f8c8d;"></i>
+            <i class="fas fa-power-off" style="font-size: 1.2rem;"></i>
+        </div>
+    </div>
+
+    <div class="question-area">
+        <div class="question-text" id="questionText">🤔 What is this?</div>
+    </div>
+
+    <div class="options-area" id="optionsContainer"></div>
+
+    <div class="feedback" id="feedbackMsg">
+        ⭐ Click START, let's wash and learn English!
+    </div>
+
+    <div class="action-buttons">
+        <button id="startBtn" class="btn-start"><i class="fas fa-play"></i> START</button>
+        <button id="playAgainBtn" class="btn-again hidden"><i class="fas fa-undo-alt"></i> PLAY AGAIN</button>
+    </div>
+</div>
+
+<script>
+    // ---------- 衣物数据库 ----------
+    // 图标分配：
+    // 连衣裙 dress -> 🥻
+    // 短裙 skirt -> 👗
+    // 毛衣 sweater -> 🧶
+    // 外套 coat -> 🥼
+    // 夹克 jacket -> 🧥
+    // 靴子 boot -> 👢 (单数)
+    // 其他: scarf🧣, hat🧢, T-shirt👕, shirt👔, pants👖, shorts🩳, socks🧦
+    const ALL_CLOTHES = [
+        { id: "jacket", en: "jacket", icon: "🧥", plural: false },
+        { id: "scarf", en: "scarf", icon: "🧣", plural: false },
+        { id: "hat", en: "hat", icon: "🧢", plural: false },
+        { id: "tshirt", en: "T-shirt", icon: "👕", plural: false },
+        { id: "shirt", en: "shirt", icon: "👔", plural: false },
+        { id: "sweater", en: "sweater", icon: "🧶", plural: false },
+        { id: "coat", en: "coat", icon: "🥼", plural: false },
+        { id: "skirt", en: "skirt", icon: "👗", plural: false },          // 短裙
+        { id: "dress", en: "dress", icon: "🥻", plural: false },          // 连衣裙
+        { id: "pants", en: "pants", icon: "👖", plural: true },
+        { id: "shorts", en: "shorts", icon: "🩳", plural: true },
+        { id: "socks", en: "socks", icon: "🧦", plural: true },
+        { id: "boot", en: "boot", icon: "👢", plural: false }
+    ];
+    const TOTAL_ITEMS = ALL_CLOTHES.length;
+    document.getElementById('totalCount').innerText = TOTAL_ITEMS;
+
+    // 游戏状态
+    let remainingItems = [];
+    let currentCloth = null;
+    let currentScore = 0;
+    let isGameActive = false;
+    let isWashing = false;
+    let isWaitingAnswer = false;
+    let washTimer = null;
+
+    // DOM 元素
+    const drumEl = document.getElementById('drum');
+    const clothIconEl = document.getElementById('clothIcon');
+    const questionTextEl = document.getElementById('questionText');
+    const optionsContainer = document.getElementById('optionsContainer');
+    const startBtn = document.getElementById('startBtn');
+    const playAgainBtn = document.getElementById('playAgainBtn');
+    const scoreSpan = document.getElementById('scoreValue');
+    const remainingCountSpan = document.getElementById('remainingCount');
+    const feedbackMsg = document.getElementById('feedbackMsg');
+
+    function updateStatsUI() {
+        scoreSpan.innerText = currentScore;
+        remainingCountSpan.innerText = remainingItems.length;
+    }
+
+    function clearOptions() {
+        optionsContainer.innerHTML = '';
+    }
+
+    function setOptionsEnabled(enabled) {
+        const btns = document.querySelectorAll('.option-btn');
+        btns.forEach(btn => {
+            if (enabled) {
+                btn.removeAttribute('disabled');
+                btn.classList.remove('disabled-btn');
+            } else {
+                btn.setAttribute('disabled', 'disabled');
+                btn.classList.add('disabled-btn');
+            }
+        });
+    }
+
+    function showRewardFeedback(correctWord) {
+        feedbackMsg.innerHTML = `🎉 Great! "${correctWord}" is correct! +1 🎉`;
+        feedbackMsg.style.backgroundColor = "#d4ffb0";
+        setTimeout(() => {
+            if (isGameActive || !isGameActive) {
+                feedbackMsg.style.backgroundColor = "#fceb98";
+                if (remainingItems.length === 0 && currentScore === TOTAL_ITEMS) {
+                    // keep end message
+                } else {
+                    if(!isWashing) feedbackMsg.innerHTML = "✨ Next piece of clothing! ✨";
+                }
+            } else {
+                feedbackMsg.style.backgroundColor = "#fceb98";
+            }
+        }, 1200);
+        drumEl.classList.add('reward-flash');
+        setTimeout(() => drumEl.classList.remove('reward-flash'), 300);
+    }
+
+    function showWrongFeedback() {
+        feedbackMsg.innerHTML = "❌ Oops! Try again! Look carefully at the clothing! ❌";
+        feedbackMsg.style.backgroundColor = "#ffc2a1";
+        setTimeout(() => {
+            if(isGameActive && !isWashing) feedbackMsg.style.backgroundColor = "#fceb98";
+            else if(!isGameActive) feedbackMsg.style.backgroundColor = "#fceb98";
+        }, 800);
+    }
+
+    function endGameAndShowAgain() {
+        isGameActive = false;
+        isWaitingAnswer = false;
+        if (washTimer) clearTimeout(washTimer);
+        setOptionsEnabled(false);
+        questionTextEl.innerHTML = "🏆 You washed all clothes! 🏆";
+        feedbackMsg.innerHTML = "🎉 Amazing! You learned all the words! Click PLAY AGAIN to challenge again 🎉";
+        feedbackMsg.style.backgroundColor = "#ffe3a3";
+        playAgainBtn.classList.remove('hidden');
+        startBtn.classList.add('hidden');
+        clothIconEl.innerHTML = "🏆✨";
+    }
+
+    function getQuestionText(cloth) {
+        return cloth.plural ? "🤔 What are these?" : "🤔 What is this?";
+    }
+
+    // 洗衣循环：1秒洗衣，显示纯图标，无文字
+    function startWashCycle() {
+        if (washTimer) clearTimeout(washTimer);
+        if (!isGameActive) return;
+        if (isWashing) return;
+        if (remainingItems.length === 0) {
+            endGameAndShowAgain();
+            return;
+        }
+        const randomIndex = Math.floor(Math.random() * remainingItems.length);
+        currentCloth = { ...remainingItems[randomIndex] };
+        
+        isWashing = true;
+        isWaitingAnswer = false;
+        setOptionsEnabled(false);
+        clearOptions();
+        drumEl.classList.add('washing');
+        drumEl.classList.add('drum-washing');
+        clothIconEl.innerHTML = "🌀💧🌀";
+        questionTextEl.innerHTML = "🌀 Washing machine is spinning... 🌀";
+        feedbackMsg.innerHTML = "🧼 Washing the clothes, please wait... 🧼";
+        
+        washTimer = setTimeout(() => {
+            drumEl.classList.remove('washing');
+            drumEl.classList.remove('drum-washing');
+            if (currentCloth) {
+                clothIconEl.innerHTML = currentCloth.icon;
+                questionTextEl.innerHTML = getQuestionText(currentCloth);
+                feedbackMsg.innerHTML = "👚 Clean clothes! Which word is it? 👕";
+                generateOptions(currentCloth.en);
+                setOptionsEnabled(true);
+                isWashing = false;
+                isWaitingAnswer = true;
+            } else {
+                if(remainingItems.length === 0) endGameAndShowAgain();
+                else {
+                    isWashing = false;
+                    startWashCycle();
+                }
+            }
+        }, 1000);
+    }
+
+    // 生成选项（纯文本，无图标），并确保 coat 和 jacket 不同时出现
+    function generateOptions(correctEn) {
+        clearOptions();
+        let allEnWords = ALL_CLOTHES.map(c => c.en);
+        // 候选干扰项：排除正确单词
+        let candidates = allEnWords.filter(word => word !== correctEn);
+        
+        // 避免 coat 和 jacket 同时出现在选项中
+        // 如果正确单词是 coat，则从候选词中移除 jacket
+        if (correctEn === "coat") {
+            candidates = candidates.filter(word => word !== "jacket");
+        }
+        // 如果正确单词是 jacket，则从候选词中移除 coat
+        if (correctEn === "jacket") {
+            candidates = candidates.filter(word => word !== "coat");
+        }
+        
+        // 随机取3个不同的干扰项
+        let shuffledCandidates = [...candidates];
+        for (let i = shuffledCandidates.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffledCandidates[i], shuffledCandidates[j]] = [shuffledCandidates[j], shuffledCandidates[i]];
+        }
+        let wrongOptions = shuffledCandidates.slice(0, 3);
+        let options = [correctEn, ...wrongOptions];
+        // 最终打乱顺序
+        for (let i = options.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [options[i], options[j]] = [options[j], options[i]];
+        }
+        
+        options.forEach(optionWord => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.textContent = optionWord;
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (!isGameActive || isWashing || !isWaitingAnswer) {
+                    feedbackMsg.innerHTML = "⏳ Please wait until washing is finished!";
+                    return;
+                }
+                if (optionWord === correctEn) {
+                    if (currentCloth && remainingItems.length > 0) {
+                        const indexInRemaining = remainingItems.findIndex(item => item.id === currentCloth.id);
+                        if (indexInRemaining !== -1) {
+                            remainingItems.splice(indexInRemaining, 1);
+                            currentScore++;
+                            updateStatsUI();
+                            showRewardFeedback(correctEn);
+                            isWaitingAnswer = false;
+                            setOptionsEnabled(false);
+                            clearOptions();
+                            if (remainingItems.length === 0 && currentScore === TOTAL_ITEMS) {
+                                endGameAndShowAgain();
+                            } else {
+                                startWashCycle();
+                            }
+                        } else {
+                            isWaitingAnswer = false;
+                            startWashCycle();
+                        }
+                    } else {
+                        if(remainingItems.length === 0) endGameAndShowAgain();
+                        else startWashCycle();
+                    }
+                } else {
+                    showWrongFeedback();
+                    drumEl.style.transform = "rotate(2deg)";
+                    setTimeout(() => { if(drumEl) drumEl.style.transform = ""; }, 150);
+                }
+            });
+            optionsContainer.appendChild(btn);
+        });
+    }
+
+    function resetAndStart() {
+        if (washTimer) clearTimeout(washTimer);
+        isGameActive = false;
+        isWashing = false;
+        isWaitingAnswer = false;
+        remainingItems = ALL_CLOTHES.map(item => ({ ...item }));
+        currentScore = 0;
+        currentCloth = null;
+        updateStatsUI();
+        clearOptions();
+        setOptionsEnabled(false);
+        drumEl.classList.remove('washing', 'drum-washing', 'reward-flash');
+        clothIconEl.innerHTML = "🧺";
+        questionTextEl.innerHTML = "🤔 What is this?";
+        feedbackMsg.innerHTML = "🎵 Press START, let's wash clothes and learn words! 🎵";
+        feedbackMsg.style.backgroundColor = "#fceb98";
+        playAgainBtn.classList.add('hidden');
+        startBtn.classList.remove('hidden');
+        isGameActive = false;
+    }
+
+    function launchGame() {
+        if (isGameActive) {
+            feedbackMsg.innerHTML = "Game already started! Answer the question!";
+            return;
+        }
+        resetAndStart();
+        remainingItems = ALL_CLOTHES.map(item => ({ ...item }));
+        currentScore = 0;
+        updateStatsUI();
+        isGameActive = true;
+        isWashing = false;
+        isWaitingAnswer = false;
+        if (washTimer) clearTimeout(washTimer);
+        clearOptions();
+        setOptionsEnabled(false);
+        feedbackMsg.innerHTML = "🚀 Washer starts! Let's go! 🚀";
+        startBtn.classList.add('hidden');
+        playAgainBtn.classList.add('hidden');
+        startWashCycle();
+    }
+
+    function replayGame() {
+        resetAndStart();
+        isGameActive = false;
+        startBtn.classList.remove('hidden');
+        playAgainBtn.classList.add('hidden');
+        feedbackMsg.innerHTML = "🎈 New round! Click START to wash and learn! 🎈";
+        clothIconEl.innerHTML = "🧺";
+        questionTextEl.innerHTML = "🤔 What is this?";
+        clearOptions();
+        setOptionsEnabled(false);
+        if (washTimer) clearTimeout(washTimer);
+    }
+
+    startBtn.addEventListener('click', launchGame);
+    playAgainBtn.addEventListener('click', replayGame);
+
+    resetAndStart();
+    setOptionsEnabled(false);
+</script>
+</body>
+</html>
